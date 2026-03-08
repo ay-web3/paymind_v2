@@ -52,6 +52,11 @@ function pickLevels(zones, price) {
 
   return { nearestSupport, nearestResistance };
 }
+const MAX_LEVEL_DISTANCE = 0.05; // 5%
+
+function within(price, level) {
+  return Math.abs(level - price) / price <= MAX_LEVEL_DISTANCE;
+}
 
 /**
  * Trade plan is NOT “must-take”. It’s a structured setup suggestion:
@@ -117,6 +122,20 @@ export function buildTradePlan({
   // Build SL padding using ATR if available, else 0.35% fallback
   const slPad = atr ? atr * 0.8 : price * 0.0035;
 
+  if (nearestSupport && !within(price, nearestSupport.high, 0.01) &&
+      nearestResistance && !within(price, nearestResistance.low, 0.01)) {
+    return {
+      decision: "none",
+      reason: "Price not near support/resistance zone",
+      entry: null,
+      sl: null,
+      tps: [],
+      rr: null,
+      invalidation: invalidation || null,
+      conditions: ["Wait for price to reach a key zone"]
+    };
+  }
+
   // RANGE logic: fade extremes (support -> long, resistance -> short)
   if (isRange) {
     if (nearestSupport && Math.abs((price - nearestSupport.high) / price) < 0.01) {
@@ -172,8 +191,9 @@ export function buildTradePlan({
         entry = Math.min(price, nearestSupport.high);
         sl = nearestSupport.low - slPad;
 
-        const tp1 = price + (price - sl) * 1.2;
-        const tp2 = price + (price - sl) * 2.2;
+        const risk = Math.abs(entry - sl);
+        const tp1 = entry - risk * 1.2;
+        const tp2 = entry - risk * 2.2;
 
         tps = [
           { label: "TP1", price: tp1 },
@@ -199,8 +219,9 @@ export function buildTradePlan({
         entry = Math.max(price, nearestResistance.low);
         sl = nearestResistance.high + slPad;
 
-        const tp1 = price - (sl - price) * 1.2;
-        const tp2 = price - (sl - price) * 2.2;
+        const risk = Math.abs(entry - sl);
+        const tp1 = entry + risk * 1.2;
+        const tp2 = entry + risk * 2.2;
 
         tps = [
           { label: "TP1", price: tp1 },

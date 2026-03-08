@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const backend = "http://34.172.199.194:3000";
+  const backend = "http://34.123.224.26:3000";
 
   // Build the backend URL
   const path = (req.query.path || []).join("/");

@@ -260,8 +260,8 @@ async function callGemini(prompt) {
   const token = await getAccessToken();
 
   const PROJECT_ID = "my-project-ay-63015";
-  const LOCATION = "global"; 
-  const MODEL_ID = "gemini-3.1-pro-preview";
+  const LOCATION = "us-central1"; 
+  const MODEL_ID = "gemini-1.5-pro";
 
   
   const url = `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:generateContent`;

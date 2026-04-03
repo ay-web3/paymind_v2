@@ -261,10 +261,10 @@ async function callGemini(prompt) {
 
   const PROJECT_ID = "my-project-ay-63015";
   const LOCATION = "us-central1"; 
-  const MODEL_ID = "gemini-1.5-pro";
+  const MODEL_ID = "gemini-1.5-flash";
 
-  
-  const url = `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:generateContent`;
+  const host = `${LOCATION}-aiplatform.googleapis.com`;
+  const url = `https://${host}/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL_ID}:generateContent`;
   const safePrompt = String(prompt || "").slice(0, 12000);
   const res = await fetch(url, {
     method: "POST",

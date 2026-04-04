@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import { createPublicClient, http, parseAbiItem } from 'viem';
+import { createPublicClient, http, parseAbiItem, keccak256, toBytes } from 'viem';
 import { arcTestnet } from 'viem/chains';
 const IDENTITY_REGISTRY = "0x8004A818BFB912233c491871b3d84c89A494BD9e";
 /**
@@ -24,6 +24,13 @@ export class ArcManagedSDK {
                 this.secretPath = config.secretPath;
         }
         this.loadSecret();
+    }
+    /**
+     * @dev Generates a deterministic Keccak256 hash for task or result metadata.
+     */
+    generateMetadataHash(metadata) {
+        const str = JSON.stringify(metadata, Object.keys(metadata).sort());
+        return keccak256(toBytes(str));
     }
     loadSecret() {
         if (fs.existsSync(this.secretPath)) {

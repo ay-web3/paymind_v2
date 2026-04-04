@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import { createPublicClient, http, parseAbiItem } from 'viem';
+import { createPublicClient, http, parseAbiItem, keccak256, toBytes } from 'viem';
 import { arcTestnet } from 'viem/chains';
 
 export interface ArcManagedConfig {
@@ -28,6 +28,15 @@ export class ArcManagedSDK {
             if (config.agentId) this.agentId = config.agentId;
         }
         this.loadSecret();
+    }
+
+    /**
+     * @dev Generates a deterministic Keccak256 hash for task or result metadata.
+     * Use this to create standard discovery-friendly hashes.
+     */
+    generateMetadataHash(metadata: object): string {
+        const str = JSON.stringify(metadata, Object.keys(metadata).sort());
+        return keccak256(toBytes(str));
     }
 
     private loadSecret() {

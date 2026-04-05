@@ -32,6 +32,15 @@ export class ArcManagedSDK {
         const str = JSON.stringify(metadata, Object.keys(metadata).sort());
         return keccak256(toBytes(str));
     }
+    /**
+     * @dev Resolves a URI to a human-clickable link.
+     */
+    resolveEvidenceURI(uri, gateway = "https://ipfs.io/ipfs/") {
+        if (uri.startsWith("ipfs://")) {
+            return uri.replace("ipfs://", gateway);
+        }
+        return uri;
+    }
     loadSecret() {
         if (fs.existsSync(this.secretPath)) {
             try {

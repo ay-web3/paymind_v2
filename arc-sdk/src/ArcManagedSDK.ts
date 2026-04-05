@@ -39,6 +39,17 @@ export class ArcManagedSDK {
         return keccak256(toBytes(str));
     }
 
+    /**
+     * @dev Resolves a URI to a human-clickable link.
+     * Automatically handles ipfs:// by wrapping it in a public gateway.
+     */
+    resolveEvidenceURI(uri: string, gateway: string = "https://ipfs.io/ipfs/"): string {
+        if (uri.startsWith("ipfs://")) {
+            return uri.replace("ipfs://", gateway);
+        }
+        return uri;
+    }
+
     private loadSecret() {
         if (fs.existsSync(this.secretPath)) {
             try {

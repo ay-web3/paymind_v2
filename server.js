@@ -1654,9 +1654,30 @@ ${JSON.stringify(recipes.recipes.slice(0, 20), null, 2)}
 
 
 /* =======================
-   REPORT STORE (NEW)
+   REPORT STORE (PERSISTENT)
 ======================= */
-const REPORT_STORE = new Map(); // taskId:resultHash -> analysisData
+const REPORTS_FILE = "reports.json";
+let REPORT_STORE = new Map();
+
+// Load existing reports
+if (fs.existsSync(REPORTS_FILE)) {
+  try {
+    const data = JSON.parse(fs.readFileSync(REPORTS_FILE, "utf8"));
+    REPORT_STORE = new Map(Object.entries(data));
+    console.log(`✅ Loaded ${REPORT_STORE.size} persistent reports.`);
+  } catch (e) {
+    console.error("!! Failed to load persistent reports:", e.message);
+  }
+}
+
+function saveReports() {
+  try {
+    const obj = Object.fromEntries(REPORT_STORE);
+    fs.writeFileSync(REPORTS_FILE, JSON.stringify(obj, null, 2));
+  } catch (e) {
+    console.error("!! Failed to save reports:", e.message);
+  }
+}
 
 app.post("/report/store", (req, res) => {
   const { taskId, resultHash, data } = req.body;
@@ -1665,6 +1686,7 @@ app.post("/report/store", (req, res) => {
   }
   const key = `${taskId}:${resultHash}`;
   REPORT_STORE.set(key, data);
+  saveReports();
   console.log(`✅ Stored report for Task #${taskId} | Hash: ${resultHash}`);
   res.json({ success: true, url: `http://${req.get('host')}/report/${taskId}/${resultHash.slice(0, 10)}` });
 });

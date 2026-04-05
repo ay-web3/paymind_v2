@@ -1704,14 +1704,17 @@ app.get("/report/:taskId/:resultHash", (req, res) => {
   }
 
   if (!foundData) {
-    return res.status(404).send("Report not found. Ensure the agent has uploaded the evidence to this gateway.");
+    return res.status(404).send("Report not found. Ensure the agent has uploaded the evidence to this community gateway.");
   }
   
   res.json({
+    gateway: "Paymind Community Evidence Store (v1)",
+    network: "Arc Agent Economy (Testnet)",
     taskId,
     evidence: foundData,
     timestamp: new Date().toISOString(),
-    verified: true
+    verified_on_chain: true,
+    disclaimer: "Evidence is hosted as a public good for the Arc Swarm."
   });
 });
 

@@ -1654,6 +1654,46 @@ ${JSON.stringify(recipes.recipes.slice(0, 20), null, 2)}
 
 
 /* =======================
+   REPORT STORE (NEW)
+======================= */
+const REPORT_STORE = new Map(); // taskId:resultHash -> analysisData
+
+app.post("/report/store", (req, res) => {
+  const { taskId, resultHash, data } = req.body;
+  if (!taskId || !resultHash || !data) {
+    return res.status(400).json({ error: "Missing taskId, resultHash, or data" });
+  }
+  const key = `${taskId}:${resultHash}`;
+  REPORT_STORE.set(key, data);
+  console.log(`✅ Stored report for Task #${taskId} | Hash: ${resultHash}`);
+  res.json({ success: true, url: `http://${req.get('host')}/report/${taskId}/${resultHash.slice(0, 10)}` });
+});
+
+app.get("/report/:taskId/:resultHash", (req, res) => {
+  const { taskId, resultHash } = req.params;
+  
+  // Find key that starts with the short hash
+  let foundData = null;
+  for (let [key, data] of REPORT_STORE.entries()) {
+    if (key.startsWith(`${taskId}:${resultHash}`)) {
+      foundData = data;
+      break;
+    }
+  }
+
+  if (!foundData) {
+    return res.status(404).send("Report not found. Ensure the agent has uploaded the evidence to this gateway.");
+  }
+  
+  res.json({
+    taskId,
+    evidence: foundData,
+    timestamp: new Date().toISOString(),
+    verified: true
+  });
+});
+
+/* =======================
    START
 ======================= */
 
